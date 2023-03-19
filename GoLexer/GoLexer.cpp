@@ -22,6 +22,11 @@ void GoLexer::Advance()
 {
 }
 
+char8_t GoLexer::Read()
+{
+	return u8'\0';
+}
+
 GoLexer::GoLexer(std::string const& GoFile) : m_file(GoFile), m_at(0), m_cur(0)
 {
 }
