@@ -8,12 +8,17 @@ private:
 
 public:
 	enum GoType {
+		Eof,
 		Unknown,
 		Comment,
 		Semicolon,
 		Identifier,
 		Keyword,
 		Number,
+		String,
+		OpenParen, CloseParen,
+		OpenBracket, CloseBracket,
+		OpenCurly, CloseCurly,
 		OperatorAndPunctuation
 	};
 

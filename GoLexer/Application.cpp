@@ -61,7 +61,35 @@ void Foo(wchar_t** argv)
 	printf("========\n");
 
 }
+inline std::string TokenToString(GoToken::GoType TokenType)
+{
+	switch (TokenType)
+	{
+	case GoToken::String:
+		return "String";
 
+	case GoToken::Number:
+		return "Number";
+
+	case GoToken::Identifier:
+		return "Identifier";
+
+	case GoToken::OpenBracket:
+	case GoToken::CloseBracket:
+		return "Bracket";
+
+	case GoToken::OpenParen:
+	case GoToken::CloseParen:
+		return "Parenthesis";
+		
+	case GoToken::OpenCurly:
+	case GoToken::CloseCurly:
+		return "Curly";
+
+	default:
+		return "TBA";
+	}
+}
 int wmain(int argc, wchar_t** argv)
 {
 	SetConsoleCP(CP_UTF8);
@@ -87,7 +115,12 @@ int wmain(int argc, wchar_t** argv)
 		puts("");
 		GoLexer lexer((char*)ExampleBuffer);
 		GoToken token = lexer.Next();
-		printf("%s\n", token.Value().c_str());
+		while (token.Token() != GoToken::Eof)
+		{
+			printf("%s %s\n", TokenToString(token.Token()).c_str(), token.Value().c_str());
+			token = lexer.Next();
+		}
+		
 
 		VirtualFree(ExampleBuffer, 0, MEM_RELEASE);
 	}
