@@ -106,8 +106,9 @@ GoToken GoLexer::Next()
 		std::vector<unsigned char> Value;
 		while (Char != ' ' && Char != 0)
 		{
-			SkipWhitespace();
+			
 			Value.push_back(Char);
+
 			Char = Read();
 		}
 		return GoToken(GoToken::Identifier, std::string{Value.begin(), Value.end()});
