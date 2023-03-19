@@ -43,36 +43,10 @@ size_t utf8len(std::string const& text)
 	return len;
 }
 
-
-int wmain(int argc, wchar_t** argv)
+void Foo(wchar_t** argv)
 {
-
-	SetConsoleCP(CP_UTF8);
-	SetConsoleOutputCP(CP_UTF8);
-	if (argc < 2)
-	{
-		return 1;
-	}
-	HANDLE Example = CreateFile(L"GolangExample01.go", GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-	DWORD ExampleSize = GetFileSize(Example, nullptr);
-	LPVOID ExampleBuffer = VirtualAlloc(nullptr, ExampleSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-	if (ExampleBuffer)
-	{
-		DWORD ExampleReadSize;
-		if (!ReadFile(Example, ExampleBuffer, ExampleSize, &ExampleReadSize, nullptr))
-		{
-			return 3;
-		}
-		puts("");
-		GoLexer lexer((char*)ExampleBuffer);
-		lexer.Next();
-		VirtualFree(ExampleBuffer, 0, MEM_RELEASE);
-	}
-	CloseHandle(Example);
-
-	printf("File size %d\n", ExampleSize);
-
 	std::string Arg = Utf16ToUtf8(argv[1]);
+
 	printf("========\n");
 	printf("PRINTOUT: %s\n", Arg.c_str());
 	printf("utf8 len %zu\n", utf8len(Arg));
@@ -86,6 +60,39 @@ int wmain(int argc, wchar_t** argv)
 
 	printf("========\n");
 
-	
+}
+
+int wmain(int argc, wchar_t** argv)
+{
+	SetConsoleCP(CP_UTF8);
+	SetConsoleOutputCP(CP_UTF8);
+
+	if (argc < 2)
+	{
+		return 1;
+	}
+
+	HANDLE Example = CreateFile(L"GolangExample01.go", GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+	DWORD ExampleSize = GetFileSize(Example, nullptr);
+	printf("File size %d\n", ExampleSize);
+	LPVOID ExampleBuffer = VirtualAlloc(nullptr, ExampleSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+	if (ExampleBuffer)
+	{
+		DWORD ExampleReadSize;
+		if (!ReadFile(Example, ExampleBuffer, ExampleSize, &ExampleReadSize, nullptr))
+		{
+			return 3;
+		}
+		puts("");
+		GoLexer lexer((char*)ExampleBuffer);
+		GoToken token = lexer.Next();
+		printf("%s\n", token.Value().c_str());
+
+		VirtualFree(ExampleBuffer, 0, MEM_RELEASE);
+	}
+
+	CloseHandle(Example);
+
 	return 0;
 }

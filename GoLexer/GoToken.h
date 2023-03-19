@@ -13,14 +13,16 @@ public:
 		Semicolon,
 		Identifier,
 		Keyword,
-		OperatorAndPunctuation,
+		Number,
+		OperatorAndPunctuation
 	};
 
 	GoToken(GoType TokenType, std::string const& Value);
 
 	GoType Token();
+	std::string Value() const;
 private:
 	GoType m_token;
-	std::string Value() const;
+	
 };
 
