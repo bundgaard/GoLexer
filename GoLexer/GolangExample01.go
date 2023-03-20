@@ -6,4 +6,5 @@ import (
 
 func main() {
 	fmt.Println("Hello, World")
+	x := 1 + 2
 }

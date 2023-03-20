@@ -81,10 +81,13 @@ inline std::string TokenToString(GoToken::GoType TokenType)
 	case GoToken::OpenParen:
 	case GoToken::CloseParen:
 		return "Parenthesis";
-		
+
 	case GoToken::OpenCurly:
 	case GoToken::CloseCurly:
 		return "Curly";
+
+	case GoToken::OperatorAndPunctuation:
+		return "Operators and Punctuation";
 
 	default:
 		return "TBA";
@@ -101,31 +104,35 @@ int wmain(int argc, wchar_t** argv)
 	}
 
 	HANDLE Example = CreateFile(L"GolangExample01.go", GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-	DWORD ExampleSize = GetFileSize(Example, nullptr);
-	printf("File size %d\n", ExampleSize);
-	LPVOID ExampleBuffer = VirtualAlloc(nullptr, ExampleSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-	if (ExampleBuffer)
+	if (Example)
 	{
-		DWORD ExampleReadSize;
-		if (!ReadFile(Example, ExampleBuffer, ExampleSize, &ExampleReadSize, nullptr))
-		{
-			return 3;
-		}
-		puts("");
-		GoLexer lexer((char*)ExampleBuffer);
-		GoToken token = lexer.Next();
-		while (token.Token() != GoToken::Eof)
-		{
-			printf("%s %s\n", TokenToString(token.Token()).c_str(), token.Value().c_str());
-			token = lexer.Next();
-		}
-		
+		DWORD ExampleSize = GetFileSize(Example, nullptr);
+		printf("File size %d\n", ExampleSize);
+		LPVOID ExampleBuffer = VirtualAlloc(nullptr, ExampleSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
-		VirtualFree(ExampleBuffer, 0, MEM_RELEASE);
+		if (ExampleBuffer)
+		{
+			DWORD ExampleReadSize;
+			if (!ReadFile(Example, ExampleBuffer, ExampleSize, &ExampleReadSize, nullptr))
+			{
+				return 3;
+			}
+			printf("File content: %s\n", (char*)ExampleBuffer);
+			GoLexer lexer((char*)ExampleBuffer);
+			GoToken token = lexer.Next();
+			while (token.Token() != GoToken::Eof)
+			{
+				printf("%s %s\n", TokenToString(token.Token()).c_str(), token.Value().c_str());
+				token = lexer.Next();
+			}
+
+
+			VirtualFree(ExampleBuffer, 0, MEM_RELEASE);
+		}
+
+		CloseHandle(Example);
 	}
 
-	CloseHandle(Example);
 
 	return 0;
 }

@@ -19,7 +19,9 @@ public:
 		OpenParen, CloseParen,
 		OpenBracket, CloseBracket,
 		OpenCurly, CloseCurly,
-		OperatorAndPunctuation
+		OperatorAndPunctuation,
+		CommentLine,
+		CommentBlock
 	};
 
 	GoToken(GoType TokenType, std::string const& Value);

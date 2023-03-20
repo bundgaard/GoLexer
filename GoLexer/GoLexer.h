@@ -14,6 +14,7 @@ private:
 	unsigned char Read();
 	unsigned char ReadChar();
 	void Unread(unsigned char Char);
+	unsigned char Peek();
 public:
 	explicit GoLexer(std::string const& GoFile);
 
