@@ -10,7 +10,7 @@ void GoLexer::SkipWhitespace()
 {
 	unsigned char Current = Read();
 
-	while(Current == ' ' || Current == '\r'||Current == '\n'||Current=='\t')
+	while (Current == ' ' || Current == '\r' || Current == '\n' || Current == '\t')
 	{
 		Current = Read();
 	}
@@ -70,7 +70,7 @@ GoToken GoLexer::Next()
 	{
 		return GoToken(GoToken::Eof, "<EOF>");
 	}
-	
+
 	if (Char == '"')
 	{
 		std::vector<unsigned char> Value;
@@ -131,12 +131,38 @@ GoToken GoLexer::Next()
 		if (Next == '*')
 		{
 			Char = Read();
+			Char = Read();
+			std::vector<unsigned char> Result;
+			while (true)
+			{
+				if (Char == '*' && Peek() == '/')
+				{
+					Char = Read();
+					Char = Read();
+					break;
+				}
+				Result.push_back(Char);
+				Char = Read();
+			}
+			return GoToken(GoToken::CommentBlock, std::string{ Result.begin(), Result.end() });
 			// Read to the * and check if its ending with /
 		}
 		// Check for /
 		if (Next == '/')
 		{
-			Char = Read();
+			Char = Read(); // Eat /
+			Char = Read(); // Stand on the next character
+			std::vector<unsigned char> Result;
+			while (Char != '\n' && Char != '\r')
+			{
+				Result.push_back(Char);
+				Char = Read();
+			}
+			if (Char == '\n')
+			{
+				Char = Read();
+			}
+			return GoToken(GoToken::CommentLine, std::string{ Result.begin(), Result.end() });
 			// Read to ENDOFLINE \r\n or \0
 		}
 		// Else
