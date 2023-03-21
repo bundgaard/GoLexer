@@ -1,219 +1,225 @@
 #include "GoLexer.h"
 #include <cstdio>
 #include <vector>
-static bool IsWhitespace(unsigned char Char)
-{
-	return Char == ' ';
-}
 
-void GoLexer::SkipWhitespace()
+namespace Tretton63
 {
-	unsigned char Current = Read();
 
-	while (Current == ' ' || Current == '\r' || Current == '\n' || Current == '\t')
+	static bool IsWhitespace(unsigned char Char)
 	{
-		Current = Read();
-	}
-	Unread(Current);
-}
-
-void GoLexer::Advance()
-{
-}
-
-unsigned char GoLexer::Read()
-{
-	if (m_peeking) {
-		m_peeking = false;
-		return m_last;
-	}
-	return ReadChar();
-}
-
-unsigned char GoLexer::ReadChar()
-{
-	if (m_at + 1 > m_file.length())
-	{
-		return 0; // return 0 for our end character
-	}
-	unsigned char Char = m_file[m_at++];
-	return Char;
-}
-
-void GoLexer::Unread(unsigned char Char)
-{
-	m_peeking = true;
-	m_last = Char;
-}
-
-unsigned char GoLexer::Peek()
-{
-	size_t Index = m_at;
-
-	if (Index + 1 > m_file.length())
-	{
-		return 0;
-	}
-	unsigned char Next = m_file[m_at];
-	return Next;
-}
-
-GoLexer::GoLexer(std::string const& GoFile) : m_file(GoFile), m_at(0), m_cur(0), m_peeking(false), m_last(0)
-{
-}
-
-GoToken GoLexer::Next()
-{
-	SkipWhitespace();
-	unsigned char Char = Read();
-	if (Char == 0)
-	{
-		return GoToken(GoToken::Eof, "<EOF>");
+		return Char == ' ';
 	}
 
-	if (Char == '"')
+	void GoLexer::SkipWhitespace()
 	{
-		std::vector<unsigned char> Value;
-		Char = Read();
-		while (Char != '"')
+		unsigned char Current = Read();
+
+		while (Current == ' ' || Current == '\r' || Current == '\n' || Current == '\t')
 		{
-			Value.push_back(Char);
-			Char = Read();
+			Current = Read();
 		}
-		Char = Read(); // Eat the quote
-		Unread(Char);
-		return GoToken(GoToken::String, std::string{ Value.begin(), Value.end() });
+		Unread(Current);
 	}
-	else if (Char == '(')
+
+	void GoLexer::Advance()
 	{
-		return GoToken(GoToken::OpenParen, "(");
 	}
-	else if (Char == ')')
+
+	unsigned char GoLexer::Read()
 	{
-		return GoToken(GoToken::CloseParen, ")");
-	}
-	else if (Char == '[')
-	{
-		return GoToken(GoToken::OpenBracket, "[");
-	}
-	else if (Char == ']')
-	{
-		return GoToken(GoToken::CloseBracket, "]");
-	}
-	else if (Char == '{')
-	{
-		return GoToken(GoToken::OpenCurly, "{");
-	}
-	else if (Char == '}')
-	{
-		return GoToken(GoToken::CloseCurly, "}");
-	}
-	else if (Char == '.')
-	{
-		return GoToken(GoToken::OperatorAndPunctuation, ".");
-	}
-	else if (Char == ':')
-	{
-		unsigned char Current = Char;
-		unsigned char Next = Peek();
-		if (Next == '=')
-		{
-			Char = Read();
-			return GoToken(GoToken::OperatorAndPunctuation, ":=");
+		if (m_peeking) {
+			m_peeking = false;
+			return m_last;
 		}
-		return GoToken(GoToken::OperatorAndPunctuation, ":");
+		return ReadChar();
 	}
-	else if (Char == '/')
+
+	unsigned char GoLexer::ReadChar()
 	{
-		unsigned char Current = Char;
-		unsigned char Next = Peek();
-		// Check for * 
-		if (Next == '*')
+		if (m_at + 1 > m_file.length())
 		{
+			return 0; // return 0 for our end character
+		}
+		unsigned char Char = m_file[m_at++];
+		return Char;
+	}
+
+	void GoLexer::Unread(unsigned char Char)
+	{
+		m_peeking = true;
+		m_last = Char;
+	}
+
+	unsigned char GoLexer::Peek()
+	{
+		size_t Index = m_at;
+
+		if (Index + 1 > m_file.length())
+		{
+			return 0;
+		}
+		unsigned char Next = m_file[m_at];
+		return Next;
+	}
+
+	GoLexer::GoLexer(std::string const& GoFile) : m_file(GoFile), m_at(0), m_cur(0), m_peeking(false), m_last(0)
+	{
+	}
+
+	GoToken GoLexer::Next()
+	{
+		SkipWhitespace();
+		unsigned char Char = Read();
+		if (Char == 0)
+		{
+			return GoToken(GoToken::Eof, "<EOF>");
+		}
+
+		if (Char == '"')
+		{
+			std::vector<unsigned char> Value;
 			Char = Read();
-			Char = Read();
-			std::vector<unsigned char> Result;
-			while (true)
+			while (Char != '"')
 			{
-				if (Char == '*' && Peek() == '/')
+				Value.push_back(Char);
+				Char = Read();
+			}
+			Char = Read(); // Eat the quote
+			Unread(Char);
+			return GoToken(GoToken::String, std::string{ Value.begin(), Value.end() });
+		}
+		else if (Char == '(')
+		{
+			return GoToken(GoToken::OpenParen, "(");
+		}
+		else if (Char == ')')
+		{
+			return GoToken(GoToken::CloseParen, ")");
+		}
+		else if (Char == '[')
+		{
+			return GoToken(GoToken::OpenBracket, "[");
+		}
+		else if (Char == ']')
+		{
+			return GoToken(GoToken::CloseBracket, "]");
+		}
+		else if (Char == '{')
+		{
+			return GoToken(GoToken::OpenCurly, "{");
+		}
+		else if (Char == '}')
+		{
+			return GoToken(GoToken::CloseCurly, "}");
+		}
+		else if (Char == '.')
+		{
+			return GoToken(GoToken::OperatorAndPunctuation, ".");
+		}
+		else if (Char == ':')
+		{
+			unsigned char Current = Char;
+			unsigned char Next = Peek();
+			if (Next == '=')
+			{
+				Char = Read();
+				return GoToken(GoToken::OperatorAndPunctuation, ":=");
+			}
+			return GoToken(GoToken::OperatorAndPunctuation, ":");
+		}
+		else if (Char == '/')
+		{
+			unsigned char Current = Char;
+			unsigned char Next = Peek();
+			// Check for * 
+			if (Next == '*')
+			{
+				Char = Read();
+				Char = Read();
+				std::vector<unsigned char> Result;
+				while (true)
+				{
+					if (Char == '*' && Peek() == '/')
+					{
+						Char = Read();
+						Char = Read();
+						break;
+					}
+					Result.push_back(Char);
+					Char = Read();
+				}
+				return GoToken(GoToken::CommentBlock, std::string{ Result.begin(), Result.end() });
+				// Read to the * and check if its ending with /
+			}
+			// Check for /
+			if (Next == '/')
+			{
+				Char = Read(); // Eat /
+				Char = Read(); // Stand on the next character
+				std::vector<unsigned char> Result;
+				while (Char != '\n' && Char != '\r')
+				{
+					Result.push_back(Char);
+					Char = Read();
+				}
+				if (Char == '\n')
 				{
 					Char = Read();
-					Char = Read();
+				}
+				return GoToken(GoToken::CommentLine, std::string{ Result.begin(), Result.end() });
+				// Read to ENDOFLINE \r\n or \0
+			}
+			// Else
+			return GoToken(GoToken::OperatorAndPunctuation, "/");
+
+
+		}
+		else if (Char == '*')
+		{
+			return GoToken(GoToken::OperatorAndPunctuation, "*");
+		}
+		else if (Char == '+')
+		{
+			return GoToken(GoToken::OperatorAndPunctuation, "+");
+		}
+		else if (Char == '-')
+		{
+			return GoToken(GoToken::OperatorAndPunctuation, "-");
+		}
+		else if (Char == ';')
+		{
+			return GoToken(GoToken::OperatorAndPunctuation, ";");
+		}
+		else if (Char >= '0' && Char <= '9')
+		{
+			std::vector<unsigned char> Value;
+			while (Char >= '0' && Char <= '9')
+			{
+				Value.push_back(Char);
+				Char = Read();
+			}
+			Unread(Char);
+			return GoToken(GoToken::Number, std::string{ Value.begin(), Value.end() });
+		}
+		else
+		{
+			std::vector<unsigned char> Value;
+			while ((Char >= 'a' && Char <= 'z') || (Char >= 'A' && Char <= 'Z'))
+			{
+				if (Char == ' ' || Char == '\0')
+				{
 					break;
 				}
-				Result.push_back(Char);
+				Value.push_back(Char);
+
 				Char = Read();
 			}
-			return GoToken(GoToken::CommentBlock, std::string{ Result.begin(), Result.end() });
-			// Read to the * and check if its ending with /
+			Unread(Char);
+			return GoToken(GoToken::Identifier, std::string{ Value.begin(), Value.end() });
 		}
-		// Check for /
-		if (Next == '/')
-		{
-			Char = Read(); // Eat /
-			Char = Read(); // Stand on the next character
-			std::vector<unsigned char> Result;
-			while (Char != '\n' && Char != '\r')
-			{
-				Result.push_back(Char);
-				Char = Read();
-			}
-			if (Char == '\n')
-			{
-				Char = Read();
-			}
-			return GoToken(GoToken::CommentLine, std::string{ Result.begin(), Result.end() });
-			// Read to ENDOFLINE \r\n or \0
-		}
-		// Else
-		return GoToken(GoToken::OperatorAndPunctuation, "/");
 
 
-	}
-	else if (Char == '*')
-	{
-		return GoToken(GoToken::OperatorAndPunctuation, "*");
-	}
-	else if (Char == '+')
-	{
-		return GoToken(GoToken::OperatorAndPunctuation, "+");
-	}
-	else if (Char == '-')
-	{
-		return GoToken(GoToken::OperatorAndPunctuation, "-");
-	}
-	else if (Char == ';')
-	{
-		return GoToken(GoToken::OperatorAndPunctuation, ";");
-	}
-	else if (Char >= '0' && Char <= '9')
-	{
-		std::vector<unsigned char> Value;
-		while (Char >= '0' && Char <= '9')
-		{
-			Value.push_back(Char);
-			Char = Read();
-		}
-		Unread(Char);
-		return GoToken(GoToken::Number, std::string{ Value.begin(), Value.end() });
-	}
-	else
-	{
-		std::vector<unsigned char> Value;
-		while ((Char >= 'a' && Char <= 'z') || (Char >= 'A' && Char <= 'Z'))
-		{
-			if (Char == ' ' || Char == '\0')
-			{
-				break;
-			}
-			Value.push_back(Char);
-
-			Char = Read();
-		}
-		Unread(Char);
-		return GoToken(GoToken::Identifier, std::string{ Value.begin(), Value.end() });
+		return GoToken(GoToken::Unknown, "unknown");
 	}
 
-
-	return GoToken(GoToken::Unknown, "unknown");
 }

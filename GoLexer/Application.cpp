@@ -5,6 +5,8 @@
 #include <string>
 #include "GoLexer.h"
 
+using namespace Tretton63;
+
 inline std::string Utf16ToUtf8(std::wstring const& Data)
 {
 	DWORD kFlags = WC_ERR_INVALID_CHARS;
@@ -61,38 +63,7 @@ void Foo(wchar_t** argv)
 	printf("========\n");
 
 }
-inline std::string TokenToString(GoToken::GoType TokenType)
-{
-	switch (TokenType)
-	{
-	case GoToken::String:
-		return "String";
 
-	case GoToken::Number:
-		return "Number";
-
-	case GoToken::Identifier:
-		return "Identifier";
-
-	case GoToken::OpenBracket:
-	case GoToken::CloseBracket:
-		return "Bracket";
-
-	case GoToken::OpenParen:
-	case GoToken::CloseParen:
-		return "Parenthesis";
-
-	case GoToken::OpenCurly:
-	case GoToken::CloseCurly:
-		return "Curly";
-
-	case GoToken::OperatorAndPunctuation:
-		return "Operators and Punctuation";
-
-	default:
-		return "TBA";
-	}
-}
 int wmain(int argc, wchar_t** argv)
 {
 	SetConsoleCP(CP_UTF8);
